@@ -1,0 +1,8 @@
+{
+    "image": "product-image.jpg",
+    "text": "Product description goes here.",
+    "buttonText": "Buy",
+    "buttonLink": "https://example.com/buy",
+    "timestamps": [5, 10, 15, 20],
+    "link": "https://www.toddsnyder.com/products/ss-luxe-jersey-tee-snyder-olive?utm_source=googlePLA&utm_medium=google_shopping&utm_campaign=PM_shopping&gad_source=1&gclid=CjwKCAjwhIS0BhBqEiwADAUhc54mpuK8mXQ7KNS4IAZjqsICU__AUzvOi3_LlHX6IzolRofZ2fSCXRoCnVwQAvD_BwE&option-0=M&variant=39929319391303"
+  }
