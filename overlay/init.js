@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "block";
         modalContent.classList.add('show-modal');
         modalContent.classList.remove('hide-modal');
+        overlay.style.background = 'rgba(0, 0, 0, 0.2)';
         isModalOpen = true;
       }
   
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
           modal.style.display = "none";
           playVideo();
+          overlay.style.background = 'rgba(0, 0, 0, 0)';
         }, 1000); // Match the duration of unfoldOut animation
         isModalOpen = false;
       }
