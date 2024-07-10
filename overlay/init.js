@@ -31,45 +31,43 @@ document.addEventListener("DOMContentLoaded", function () {
       const iframe = modalContent.querySelector(".modal-iframe");
       const closeBtn = modalContent.querySelector("#close");
   
-      // Pause video and show modal on overlay click
-      overlay.addEventListener("click", function () {
-        iframe.src = config.link;
+      // Function to open modal
+      function openModal() {
         pauseVideo();
+        iframe.src = config.link;
         modal.style.display = "block";
         modalContent.classList.add('show-modal');
         modalContent.classList.remove('hide-modal');
-      });
+      }
   
-      // Close the modal
-      closeBtn.addEventListener("click", function () {
+      // Function to close modal
+      function closeModal() {
         modalContent.classList.remove('show-modal');
         modalContent.classList.add('hide-modal');
         setTimeout(() => {
           modal.style.display = "none";
           playVideo();
         }, 1000); // Match the duration of unfoldOut animation
-      });
+      }
   
-      // Close modal when clicking outside of the modal content
-      window.addEventListener("click", function (event) {
-        if (event.target == modal) {
-          modalContent.classList.remove('show-modal');
-          modalContent.classList.add('hide-modal');
-          setTimeout(() => {
-            modal.style.display = "none";
-            playVideo();
-          }, 1000); // Match the duration of unfoldOut animation
+      // Event listeners
+      overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+          openModal();
         }
       });
   
-      // Show modal at specific timestamps
+      closeBtn.addEventListener("click", closeModal);
+  
+      window.addEventListener("click", function (event) {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
+  
       video.addEventListener("timeupdate", function () {
         if (config.timestamps.includes(Math.floor(video.currentTime))) {
-          iframe.src = config.link;
-          pauseVideo();
-          modal.style.display = "block";
-          modalContent.classList.add('show-modal');
-          modalContent.classList.remove('hide-modal');
+          openModal();
         }
       });
   
