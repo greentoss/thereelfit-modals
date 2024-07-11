@@ -32,7 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const closeBtn = modalContent.querySelector("#close");
   
       let isModalOpen = false;
-      let lastTimestamp = -1;
+      let lastTimestamp = { time: 0, link: config.timestamps[0].link }; // Initialize with the first timestamp link
+      const triggeredTimestamps = new Set(); // Set to track triggered timestamps
   
       // Function to open modal
       function openModal(link) {
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "block";
         modalContent.classList.add('show-modal');
         modalContent.classList.remove('hide-modal');
-        overlay.style.background = 'rgba(0, 0, 0, 0.0)';
+        overlay.style.background = 'rgba(0, 0, 0, 0.9)';
         isModalOpen = true;
       }
   
@@ -58,11 +59,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   
       // Function to toggle modal
-      function toggleModal(link) {
+      function toggleModal() {
         if (isModalOpen) {
           closeModal();
         } else {
-          openModal(link);
+          openModal(lastTimestamp.link);
         }
       }
   
@@ -99,11 +100,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
       video.addEventListener("timeupdate", throttle(function () {
         const currentTime = Math.floor(video.currentTime);
-        if (currentTime !== lastTimestamp) {
+        if (!triggeredTimestamps.has(currentTime)) {
           const timestamp = config.timestamps.find(ts => ts.time === currentTime);
           if (timestamp) {
-            openModal(timestamp.link);
-            lastTimestamp = currentTime;
+            lastTimestamp = timestamp;
+            openModal(lastTimestamp.link);
+            triggeredTimestamps.add(currentTime); // Add to triggered timestamps
           }
         }
       }, 1000)); // Throttle the event handler to run at most once per second
@@ -117,3 +119,4 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
+  
