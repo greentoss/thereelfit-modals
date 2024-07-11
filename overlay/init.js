@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let isModalOpen = false;
         let lastTimestamp = { time: 0, link: config.timestamps[0].link }; // Initialize with the first timestamp link
-        const triggeredTimestamps = new Set(); // Set to track triggered timestamps
 
         // Function to open modal
         function openModal(link) {
@@ -120,13 +119,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         video.addEventListener("timeupdate", throttle(function () {
             const currentTime = Math.floor(video.currentTime);
-            if (!triggeredTimestamps.has(currentTime)) {
-                const timestamp = config.timestamps.find(ts => ts.time === currentTime);
-                if (timestamp) {
-                    lastTimestamp = timestamp;
-                    openModal(lastTimestamp.link);
-                    triggeredTimestamps.add(currentTime); // Add to triggered timestamps
-                }
+            let timestamp = config.timestamps.find(ts => ts.time === currentTime);
+
+            if (!timestamp) {
+                timestamp = config.timestamps
+                    .slice()
+                    .reverse()
+                    .find(ts => ts.time <= currentTime);
+            }
+
+            if (timestamp && timestamp.time !== lastTimestamp.time) {
+                lastTimestamp = timestamp;
+                // Just update the last timestamp without opening the modal
+                // openModal(lastTimestamp.link);
             }
         }, 1000)); // Throttle the event handler to run at most once per second
 
