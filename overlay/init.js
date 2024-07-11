@@ -53,6 +53,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let isModalOpen = false;
         let lastTimestamp = { time: 0, link: config.timestamps[0].link }; // Initialize with the first timestamp link
+        const triggeredTimestamps = new Set(); // Set to track triggered timestamps
+        let isSeeking = false; // Flag to detect seeking
 
         // Function to open modal
         function openModal(link) {
@@ -131,9 +133,39 @@ document.addEventListener("DOMContentLoaded", function () {
             if (timestamp && timestamp.time !== lastTimestamp.time) {
                 lastTimestamp = timestamp;
                 // Just update the last timestamp without opening the modal
-                // openModal(lastTimestamp.link);
+                triggeredTimestamps.delete(currentTime);
+            }
+
+            // Check if the current time matches a timestamp and hasn't been triggered yet
+            if (timestamp && !triggeredTimestamps.has(timestamp.time) && !isSeeking) {
+                openModal(timestamp.link);
+                triggeredTimestamps.add(timestamp.time);
             }
         }, 1000)); // Throttle the event handler to run at most once per second
+
+        video.addEventListener("seeking", function () {
+            isSeeking = true;
+        });
+
+        video.addEventListener("seeked", function () {
+            const currentTime = Math.floor(video.currentTime);
+            let timestamp = config.timestamps.find(ts => ts.time === currentTime);
+
+            if (!timestamp) {
+                timestamp = config.timestamps
+                    .slice()
+                    .reverse()
+                    .find(ts => ts.time <= currentTime);
+            }
+
+            if (timestamp && timestamp.time !== lastTimestamp.time) {
+                lastTimestamp = timestamp;
+                // Just update the last timestamp without opening the modal
+                triggeredTimestamps.delete(currentTime);
+            }
+
+            isSeeking = false;
+        });
 
         function pauseVideo() {
             video.pause();
