@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
         function closeModal() {
             modalContent.classList.remove('show-modal');
             modalContent.classList.add('hide-modal');
+            iframe.src = 'about:blank'; // Clear the iframe src to stop any running scripts
             setTimeout(() => {
                 modal.style.display = "none";
                 playVideo();
