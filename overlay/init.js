@@ -32,15 +32,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const closeBtn = modalContent.querySelector("#close");
   
       let isModalOpen = false;
+      let lastTimestamp = -1;
   
       // Function to open modal
-      function openModal() {
+      function openModal(link) {
         pauseVideo();
-        iframe.src = config.link;
+        iframe.src = link;
         modal.style.display = "block";
         modalContent.classList.add('show-modal');
         modalContent.classList.remove('hide-modal');
-        overlay.style.background = 'rgba(0, 0, 0, 0.2)';
+        overlay.style.background = 'rgba(0, 0, 0, 0.0)';
         isModalOpen = true;
       }
   
@@ -57,11 +58,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   
       // Function to toggle modal
-      function toggleModal() {
+      function toggleModal(link) {
         if (isModalOpen) {
           closeModal();
         } else {
-          openModal();
+          openModal(link);
         }
       }
   
@@ -74,21 +75,45 @@ document.addEventListener("DOMContentLoaded", function () {
   
       closeBtn.addEventListener("click", closeModal);
   
-      video.addEventListener("timeupdate", function () {
-        if (config.timestamps.includes(Math.floor(video.currentTime))) {
-          openModal();
+      // Throttle function to limit the number of times `timeupdate` event is handled
+      function throttle(fn, limit) {
+        let lastFunc;
+        let lastRan;
+        return function() {
+          const context = this;
+          const args = arguments;
+          if (!lastRan) {
+            fn.apply(context, args);
+            lastRan = Date.now();
+          } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(function() {
+              if ((Date.now() - lastRan) >= limit) {
+                fn.apply(context, args);
+                lastRan = Date.now();
+              }
+            }, limit - (Date.now() - lastRan));
+          }
+        };
+      }
+  
+      video.addEventListener("timeupdate", throttle(function () {
+        const currentTime = Math.floor(video.currentTime);
+        if (currentTime !== lastTimestamp) {
+          const timestamp = config.timestamps.find(ts => ts.time === currentTime);
+          if (timestamp) {
+            openModal(timestamp.link);
+            lastTimestamp = currentTime;
+          }
         }
-      });
+      }, 1000)); // Throttle the event handler to run at most once per second
   
       function pauseVideo() {
-        var player = video.contentWindow;
-        player.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        video.pause();
       }
   
       function playVideo() {
-        var player = video.contentWindow;
-        player.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        video.play();
       }
     }
   });
-  
